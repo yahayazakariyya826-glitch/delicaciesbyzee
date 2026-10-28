@@ -66,6 +66,7 @@ function AdminPage() {
       const t = setInterval(() => supabase.rpc("admin_heartbeat"), 60_000);
       return () => clearInterval(t);
     }
+    return undefined;
   }, [me, navigate]);
 
   if (me === undefined) return <div className="min-h-screen" />;
@@ -185,7 +186,7 @@ function ProductsTab() {
     const row = { ...edit, price: Number(edit.price) || 0, image_url: edit.image_url || null };
     const { id, ...data } = row;
     const { error } = id ? await supabase.from("products").update(data).eq("id", id) : await supabase.from("products").insert(data);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Saved");
     setEdit(null);
   };
@@ -200,7 +201,8 @@ function ProductsTab() {
     const { error } = await supabase.storage.from("product-images").upload(path, file);
     if (error) {
       setUploading(false);
-      return toast.error(error.message);
+      toast.error(error.message);
+      return;
     }
     const { data } = await supabase.storage.from("product-images").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
     setUploading(false);
@@ -267,7 +269,7 @@ function AdminsTab({ me }: { me: Admin }) {
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
     const { error } = await supabase.from("admins").insert({ email: email.trim().toLowerCase(), role, created_by: me.email });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Admin added — they can sign in with an email code.");
     setEmail("");
     load();
@@ -394,8 +396,8 @@ function SettingsTab() {
   };
   return (
     <div className="max-w-lg space-y-4">
-      <div><Label>"Powered by Cyber Scorer" link</Label><Input value={vals.powered_by_url ?? ""} onChange={(e) => setVals({ ...vals, powered_by_url: e.target.value })} /></div>
-      <div><Label>Bank transfer details</Label><Textarea value={vals.bank_details ?? ""} onChange={(e) => setVals({ ...vals, bank_details: e.target.value })} /></div>
+      <div><Label>"Powered by Cyber Scorer" link</Label><Input value={vals["powered_by_url"] ?? ""} onChange={(e) => setVals({ ...vals, powered_by_url: e.target.value })} /></div>
+      <div><Label>Bank transfer details</Label><Textarea value={vals["bank_details"] ?? ""} onChange={(e) => setVals({ ...vals, bank_details: e.target.value })} /></div>
       <Button onClick={save}>Save settings</Button>
     </div>
   );

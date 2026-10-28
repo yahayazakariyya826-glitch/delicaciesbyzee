@@ -190,7 +190,7 @@ function LiveChat() {
     setInput("");
     const { error } = await supabase.from("chats").insert({
       customer_email: user.email!,
-      customer_name: user.email!.split("@")[0],
+      customer_name: user.email!.split("@")[0] ?? null,
       message: text,
     });
     if (error) toast.error("Message not sent");

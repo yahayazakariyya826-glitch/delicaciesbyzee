@@ -23,7 +23,7 @@ const Input = z.object({
 export const askZee = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => Input.parse(d))
   .handler(async ({ data }) => {
-    const key = process.env.LOVABLE_API_KEY;
+    const key = process.env["LOVABLE_API_KEY"];
     if (!key) return { reply: "Sorry, assistant is unavailable right now. Please WhatsApp 0813 999 1550 🙏" };
 
     const menu = data.menu
