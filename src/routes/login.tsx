@@ -37,7 +37,7 @@ function Login() {
       options: { shouldCreateUser: true, emailRedirectTo: window.location.origin },
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Code sent! Check your email.");
     setStep("code");
   };
@@ -47,7 +47,7 @@ function Login() {
     setBusy(true);
     const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: code, type: "email" });
     setBusy(false);
-    if (error) return toast.error("Invalid or expired code");
+    if (error) { toast.error("Invalid or expired code"); return; }
     toast.success("Welcome!");
     navigate({ to: "/" });
   };
