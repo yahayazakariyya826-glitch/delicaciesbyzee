@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useUser } from "@/lib/auth";
 import { useProducts, type Product } from "@/lib/products";
@@ -81,28 +80,111 @@ function AdminPage() {
     );
 
   const isSuper = me.role === "Super Admin";
+  return <Dashboard me={me} isSuper={isSuper} />;
+}
+
+type Section = "products" | "orders" | "customers" | "admins" | "chats" | "settings";
+
+function Dashboard({ me, isSuper }: { me: Admin; isSuper: boolean }) {
+  const [section, setSection] = useState<Section>(isSuper ? "products" : "orders");
+  const [stats, setStats] = useState({ products: 0, orders: 0, revenue: 0 });
+  useEffect(() => {
+    Promise.all([
+      supabase.from("products").select("id", { count: "exact", head: true }),
+      supabase.from("orders").select("total,status"),
+    ]).then(([p, o]) => {
+      const rows = o.data ?? [];
+      setStats({
+        products: p.count ?? 0,
+        orders: rows.length,
+        revenue: rows.filter((r) => r.status !== "cancelled").reduce((s, r) => s + (r.total ?? 0), 0),
+      });
+    });
+  }, [section]);
+  const items: { id: Section; label: string; show: boolean }[] = [
+    { id: "products", label: "Products", show: isSuper },
+    { id: "orders", label: "Orders", show: true },
+    { id: "customers", label: "Customers", show: true },
+    { id: "chats", label: "Chats", show: true },
+    { id: "admins", label: "Admins", show: isSuper },
+    { id: "settings", label: "Settings", show: isSuper },
+  ];
   return (
     <div className="min-h-screen">
       <SiteHeader />
       <main className="mx-auto max-w-6xl px-4 py-6">
-        <h1 className="text-3xl font-bold text-gold-gradient">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">{me.email} · {me.role}</p>
-        <Tabs defaultValue="orders" className="mt-5">
-          <TabsList className="flex w-full overflow-x-auto">
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            {isSuper && <TabsTrigger value="products">Products</TabsTrigger>}
-            {isSuper && <TabsTrigger value="admins">Admins</TabsTrigger>}
-            <TabsTrigger value="chats">Chats</TabsTrigger>
-            {isSuper && <TabsTrigger value="settings">Settings</TabsTrigger>}
-          </TabsList>
-          <TabsContent value="orders"><OrdersTab /></TabsContent>
-          {isSuper && <TabsContent value="products"><ProductsTab /></TabsContent>}
-          {isSuper && <TabsContent value="admins"><AdminsTab me={me} /></TabsContent>}
-          <TabsContent value="chats"><ChatsTab /></TabsContent>
-          {isSuper && <TabsContent value="settings"><SettingsTab /></TabsContent>}
-        </Tabs>
+        <h1 className="text-2xl font-bold text-gold-gradient sm:text-3xl">
+          Welcome {me.role} - {me.email}
+        </h1>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          {[
+            ["Total Products", String(stats.products)],
+            ["Total Orders", String(stats.orders)],
+            ["Revenue", naira(stats.revenue)],
+          ].map(([k, v]) => (
+            <div key={k} className="rounded-2xl border border-border bg-card p-4">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">{k}</p>
+              <p className="mt-1 text-2xl font-bold text-primary">{v}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 grid gap-5 md:grid-cols-[200px_1fr]">
+          <nav className="flex gap-1 overflow-x-auto md:flex-col">
+            {items.filter((i) => i.show).map((i) => (
+              <button
+                key={i.id}
+                onClick={() => setSection(i.id)}
+                className={`whitespace-nowrap rounded-xl px-4 py-2.5 text-left text-sm font-medium ${section === i.id ? "bg-primary text-primary-foreground" : "bg-card text-foreground hover:bg-accent"}`}
+              >
+                {i.label}
+              </button>
+            ))}
+          </nav>
+          <section>
+            {section === "products" && isSuper && <ProductsTab />}
+            {section === "orders" && <OrdersTab />}
+            {section === "customers" && <CustomersTab />}
+            {section === "chats" && <ChatsTab />}
+            {section === "admins" && isSuper && <AdminsTab me={me} />}
+            {section === "settings" && isSuper && <SettingsTab />}
+          </section>
+        </div>
       </main>
       <SiteFooter showBanner={false} />
+    </div>
+  );
+}
+
+function CustomersTab() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  useEffect(() => {
+    supabase.from("orders").select("*").order("created_at", { ascending: false }).then(({ data }) => setOrders(data ?? []));
+  }, []);
+  const customers = useMemo(() => {
+    const m = new Map<string, { name: string; phone: string; email: string | null; orders: number; spent: number }>();
+    orders.forEach((o) => {
+      const c = m.get(o.customer_phone) ?? { name: o.customer_name, phone: o.customer_phone, email: o.customer_email, orders: 0, spent: 0 };
+      c.orders++;
+      c.spent += o.total;
+      m.set(o.customer_phone, c);
+    });
+    return [...m.values()].sort((a, b) => b.spent - a.spent);
+  }, [orders]);
+  if (!customers.length) return <p className="py-10 text-center text-muted-foreground">No customers yet.</p>;
+  return (
+    <div className="space-y-2">
+      {customers.map((c) => (
+        <div key={c.phone} className="flex items-center justify-between rounded-xl border border-border bg-card p-3 text-sm">
+          <div>
+            <p className="font-medium">{c.name}</p>
+            <p className="text-xs text-muted-foreground">{c.phone}{c.email ? ` · ${c.email}` : ""}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-primary">{naira(c.spent)}</p>
+            <p className="text-xs text-muted-foreground">{c.orders} order{c.orders > 1 ? "s" : ""}</p>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

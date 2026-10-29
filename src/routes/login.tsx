@@ -48,8 +48,14 @@ function Login() {
     const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: code, type: "email" });
     setBusy(false);
     if (error) { toast.error("Invalid or expired code"); return; }
-    toast.success("Welcome!");
-    navigate({ to: "/" });
+    const { data: isAdmin } = await supabase.rpc("is_admin");
+    if (isAdmin) {
+      toast.success("Welcome, admin!");
+      navigate({ to: "/admin" });
+    } else {
+      toast.message("Signed in — not authorized as admin.");
+      navigate({ to: "/" });
+    }
   };
 
   return (
