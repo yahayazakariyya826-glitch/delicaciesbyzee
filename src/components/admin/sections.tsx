@@ -1,22 +1,13 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Trash2, Pencil, ShieldAlert } from "lucide-react";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useUser } from "@/lib/auth";
-import { useProducts, type Product } from "@/lib/products";
-import { CATEGORIES, ORDER_STATUSES, naira, productImage } from "@/lib/brand";
+import { naira } from "@/lib/brand";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
-type Order = Database["public"]["Tables"]["orders"]["Row"];
 type Admin = Database["public"]["Tables"]["admins"]["Row"];
 type Chat = Database["public"]["Tables"]["chats"]["Row"];
 export function CustomersTab() {
@@ -49,157 +40,6 @@ export function CustomersTab() {
           </div>
         </div>
       ))}
-    </div>
-  );
-}
-
-export function OrdersTab() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [view, setView] = useState<Order | null>(null);
-  useEffect(() => {
-    const load = () =>
-      supabase.from("orders").select("*").order("created_at", { ascending: false }).then(({ data }) => setOrders(data ?? []));
-    load();
-    const ch = supabase
-      .channel(`orders-${Math.random().toString(36).slice(2)}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, load)
-      .subscribe();
-    return () => {
-      supabase.removeChannel(ch);
-    };
-  }, []);
-  const update = async (id: string, status: string) => {
-    const { error } = await supabase.from("orders").update({ status }).eq("id", id);
-    if (error) toast.error("Update failed");
-    else setOrders((o) => o.map((x) => (x.id === id ? { ...x, status } : x)));
-  };
-  if (!orders.length) return <p className="py-10 text-center text-muted-foreground">No orders yet.</p>;
-  return (
-    <div className="space-y-3">
-      {orders.map((o) => {
-        const items = (o.items as { name: string; qty: number }[]) ?? [];
-        return (
-          <div key={o.id} className="rounded-2xl border border-border bg-card p-4">
-            <div className="flex flex-wrap items-start justify-between gap-2">
-              <div>
-                <p className="font-semibold">{o.customer_name} · <span className="text-primary">{naira(o.total)}</span></p>
-                <p className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleString("en-NG", { timeZone: "Africa/Lagos" })}</p>
-                <p className="mt-1 text-sm">{items.map((i) => `${i.qty}× ${i.name}`).join(", ")}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <select
-                  value={o.status}
-                  onChange={(e) => update(o.id, e.target.value)}
-                  className="rounded-lg border border-input bg-background px-2 py-1.5 text-sm capitalize"
-                >
-                  {ORDER_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
-                <Button size="sm" variant="outline" onClick={() => setView(o)}>Details</Button>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-      <Dialog open={!!view} onOpenChange={(o) => !o && setView(null)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Customer details</DialogTitle></DialogHeader>
-          {view && (
-            <div className="space-y-1.5 text-sm">
-              <p><b>Name:</b> {view.customer_name}</p>
-              <p><b>Phone:</b> <a className="text-primary" href={`tel:${view.customer_phone}`}>{view.customer_phone}</a></p>
-              <p><b>Email:</b> {view.customer_email || "—"}</p>
-              <p><b>Address:</b> {view.address}</p>
-              <p><b>Payment:</b> {view.payment_method}</p>
-              <p><b>Delivery fee:</b> {naira(view.delivery_fee)}</p>
-              {view.note && <p><b>Note:</b> {view.note}</p>}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
-
-const emptyProduct = { name: "", price: 0, description: "", image_url: "", category: "Shawarma", available: true };
-
-export function ProductsTab() {
-  const { products } = useProducts(true);
-  const [edit, setEdit] = useState<(typeof emptyProduct & { id?: string }) | null>(null);
-  const [uploading, setUploading] = useState(false);
-
-  const save = async () => {
-    if (!edit) return;
-    const row = { ...edit, price: Number(edit.price) || 0, image_url: edit.image_url || null };
-    const { id, ...data } = row;
-    const { error } = id ? await supabase.from("products").update(data).eq("id", id) : await supabase.from("products").insert(data);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Saved");
-    setEdit(null);
-  };
-  const remove = async (p: Product) => {
-    if (!confirm(`Delete ${p.name}?`)) return;
-    const { error } = await supabase.from("products").delete().eq("id", p.id);
-    if (error) toast.error(error.message);
-  };
-  const upload = async (file: File) => {
-    setUploading(true);
-    const path = `${crypto.randomUUID()}-${file.name.replace(/[^\w.]/g, "")}`;
-    const { error } = await supabase.storage.from("product-images").upload(path, file);
-    if (error) {
-      setUploading(false);
-      toast.error(error.message);
-      return;
-    }
-    const { data } = await supabase.storage.from("product-images").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
-    setUploading(false);
-    if (data?.signedUrl) setEdit((e) => (e ? { ...e, image_url: data.signedUrl } : e));
-  };
-
-  return (
-    <div>
-      <Button onClick={() => setEdit({ ...emptyProduct })}>+ Add product</Button>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {products.map((p) => (
-          <div key={p.id} className="flex gap-3 rounded-2xl border border-border bg-card p-3">
-            <img src={productImage(p)} alt="" className="h-16 w-16 rounded-xl object-cover" width={64} height={64} loading="lazy" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-medium">{p.name}</p>
-              <p className="text-sm text-primary">{naira(p.price)}</p>
-              <p className="text-xs text-muted-foreground">{p.category} · {p.available ? "Available" : "Hidden"}</p>
-            </div>
-            <div className="flex flex-col gap-1">
-              <button aria-label="Edit" onClick={() => setEdit({ id: p.id, name: p.name, price: p.price, description: p.description ?? "", image_url: p.image_url ?? "", category: p.category, available: p.available })}><Pencil className="h-4 w-4" /></button>
-              <button aria-label="Delete" onClick={() => remove(p)}><Trash2 className="h-4 w-4 text-destructive" /></button>
-            </div>
-          </div>
-        ))}
-      </div>
-      <Dialog open={!!edit} onOpenChange={(o) => !o && setEdit(null)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>{edit?.id ? "Edit product" : "New product"}</DialogTitle></DialogHeader>
-          {edit && (
-            <div className="space-y-3">
-              <div><Label>Name</Label><Input value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} /></div>
-              <div><Label>Price (₦)</Label><Input type="number" value={edit.price} onChange={(e) => setEdit({ ...edit, price: Number(e.target.value) })} /></div>
-              <div><Label>Description</Label><Textarea value={edit.description} onChange={(e) => setEdit({ ...edit, description: e.target.value })} /></div>
-              <div>
-                <Label>Category</Label>
-                <select value={edit.category} onChange={(e) => setEdit({ ...edit, category: e.target.value })} className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label>Image</Label>
-                <Input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
-                <Input placeholder="…or paste image URL" value={edit.image_url} onChange={(e) => setEdit({ ...edit, image_url: e.target.value })} />
-                {uploading && <p className="text-xs text-muted-foreground">Uploading…</p>}
-              </div>
-              <div className="flex items-center justify-between"><Label>Available</Label><Switch checked={edit.available} onCheckedChange={(v) => setEdit({ ...edit, available: v })} /></div>
-              <Button className="w-full" onClick={save} disabled={!edit.name || uploading}>Save</Button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
@@ -329,22 +169,3 @@ export function ChatsTab() {
   );
 }
 
-export function SettingsTab() {
-  const [vals, setVals] = useState<Record<string, string>>({});
-  useEffect(() => {
-    supabase.from("settings").select("*").then(({ data }) => setVals(Object.fromEntries((data ?? []).map((r) => [r.key, r.value ?? ""]))));
-  }, []);
-  const save = async () => {
-    const rows = Object.entries(vals).map(([key, value]) => ({ key, value }));
-    const { error } = await supabase.from("settings").upsert(rows);
-    if (error) toast.error(error.message);
-    else toast.success("Settings saved");
-  };
-  return (
-    <div className="max-w-lg space-y-4">
-      <div><Label>"Powered by Cyber Scorer" link</Label><Input value={vals["powered_by_url"] ?? ""} onChange={(e) => setVals({ ...vals, powered_by_url: e.target.value })} /></div>
-      <div><Label>Bank transfer details</Label><Textarea value={vals["bank_details"] ?? ""} onChange={(e) => setVals({ ...vals, bank_details: e.target.value })} /></div>
-      <Button onClick={save}>Save settings</Button>
-    </div>
-  );
-}
