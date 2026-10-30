@@ -79,7 +79,7 @@ function PasswordCard() {
   const [pw, setPw] = useState("");
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (pw.length < 8) return toast.error("Use at least 8 characters");
+    if (pw.length < 8) { toast.error("Use at least 8 characters"); return; }
     const { error } = await supabase.auth.updateUser({ password: pw });
     if (error) toast.error(error.message);
     else { toast.success("Password saved — you can now sign in with it."); setPw(""); }
