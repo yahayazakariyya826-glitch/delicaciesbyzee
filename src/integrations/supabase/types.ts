@@ -79,10 +79,13 @@ export type Database = {
           customer_name: string
           customer_phone: string
           delivery_fee: number
+          delivery_status: string
           id: string
           items: Json
           note: string | null
           payment_method: string | null
+          payment_status: string
+          proof_path: string | null
           status: string
           total: number
         }
@@ -93,10 +96,13 @@ export type Database = {
           customer_name: string
           customer_phone: string
           delivery_fee?: number
+          delivery_status?: string
           id?: string
           items?: Json
           note?: string | null
           payment_method?: string | null
+          payment_status?: string
+          proof_path?: string | null
           status?: string
           total?: number
         }
@@ -107,10 +113,13 @@ export type Database = {
           customer_name?: string
           customer_phone?: string
           delivery_fee?: number
+          delivery_status?: string
           id?: string
           items?: Json
           note?: string | null
           payment_method?: string | null
+          payment_status?: string
+          proof_path?: string | null
           status?: string
           total?: number
         }
@@ -122,30 +131,78 @@ export type Database = {
           category: string
           created_at: string
           description: string | null
+          featured: boolean
           id: string
           image_url: string | null
+          images: string[]
           name: string
+          old_price: number | null
           price: number
+          stock: number
         }
         Insert: {
           available?: boolean
           category?: string
           created_at?: string
           description?: string | null
+          featured?: boolean
           id?: string
           image_url?: string | null
+          images?: string[]
           name: string
+          old_price?: number | null
           price?: number
+          stock?: number
         }
         Update: {
           available?: boolean
           category?: string
           created_at?: string
           description?: string | null
+          featured?: boolean
           id?: string
           image_url?: string | null
+          images?: string[]
           name?: string
+          old_price?: number | null
           price?: number
+          stock?: number
+        }
+        Relationships: []
+      }
+      public_payment_info: {
+        Row: {
+          account_name: string | null
+          account_number: string | null
+          bank_details: string | null
+          bank_name: string | null
+          id: number
+          powered_by_url: string | null
+          store_name: string
+          updated_at: string
+          whatsapp: string
+        }
+        Insert: {
+          account_name?: string | null
+          account_number?: string | null
+          bank_details?: string | null
+          bank_name?: string | null
+          id?: number
+          powered_by_url?: string | null
+          store_name?: string
+          updated_at?: string
+          whatsapp?: string
+        }
+        Update: {
+          account_name?: string | null
+          account_number?: string | null
+          bank_details?: string | null
+          bank_name?: string | null
+          id?: number
+          powered_by_url?: string | null
+          store_name?: string
+          updated_at?: string
+          whatsapp?: string
         }
         Relationships: []
       }
