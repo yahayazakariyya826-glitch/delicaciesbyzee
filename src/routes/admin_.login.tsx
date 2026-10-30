@@ -41,7 +41,7 @@ function AdminLogin() {
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setBusy(false);
-    if (error) return toast.error("Wrong email or password. First time? Use “Email me a code”, then set a password.");
+    if (error) { toast.error("Wrong email or password. First time? Use “Email me a code”, then set a password."); return; }
     finish();
   };
   const sendCode = async (e: React.FormEvent) => {
@@ -49,7 +49,7 @@ function AdminLogin() {
     setBusy(true);
     const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: true, emailRedirectTo: window.location.origin } });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Code sent — check your email.");
     setCodeSent(true);
   };
@@ -58,7 +58,7 @@ function AdminLogin() {
     setBusy(true);
     const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: code, type: "email" });
     setBusy(false);
-    if (error) return toast.error("Invalid or expired code");
+    if (error) { toast.error("Invalid or expired code"); return; }
     finish();
   };
 
