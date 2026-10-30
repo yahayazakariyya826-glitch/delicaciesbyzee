@@ -23,11 +23,14 @@ export function useSetting(key: string, fallback: string) {
   const [value, setValue] = useState(fallback);
   useEffect(() => {
     supabase
-      .from("settings")
-      .select("value")
-      .eq("key", key)
+      .from("public_payment_info")
+      .select("*")
+      .eq("id", 1)
       .maybeSingle()
-      .then(({ data }) => data?.value && setValue(data.value));
+      .then(({ data }) => {
+        const v = (data as Record<string, unknown> | null)?.[key];
+        if (typeof v === "string" && v) setValue(v);
+      });
   }, [key]);
   return value;
 }
