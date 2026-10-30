@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,8 @@ import type { Database } from "@/integrations/supabase/types";
 
 type Admin = Database["public"]["Tables"]["admins"]["Row"];
 type Chat = Database["public"]["Tables"]["chats"]["Row"];
+type Order = Database["public"]["Tables"]["orders"]["Row"];
+
 export function CustomersTab() {
   const [orders, setOrders] = useState<Order[]>([]);
   useEffect(() => {
