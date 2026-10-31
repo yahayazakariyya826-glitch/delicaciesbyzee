@@ -18,6 +18,8 @@ import { InstallPrompt } from "@/components/InstallPrompt";
 import { Toaster } from "@/components/ui/sonner";
 import { registerPWA } from "@/lib/pwa";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { supabase } from "@/integrations/supabase/client";
+import { shouldRecordSignIn } from "@/lib/audit";
 
 function NotFoundComponent() {
   return (
@@ -132,6 +134,16 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   useEffect(() => {
     registerPWA();
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!shouldRecordSignIn(event, Boolean(session))) return;
+      // Run outside the auth callback lock; the database validates and deduplicates sessions.
+      setTimeout(() => {
+        void supabase.rpc("record_admin_sign_in").then(({ error }) => {
+          if (error) console.error("Admin sign-in recording failed", error.message);
+        });
+      }, 0);
+    });
+    return () => data.subscription.unsubscribe();
   }, []);
 
   return (

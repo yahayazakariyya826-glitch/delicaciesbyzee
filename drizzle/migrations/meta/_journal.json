@@ -15,6 +15,13 @@
       "when": 1793375769406,
       "tag": "0001_admin_dashboard_upgrade",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793432356128,
+      "tag": "0002_admin_audit_log",
+      "breakpoints": true
     }
   ]
 }

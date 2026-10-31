@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-rout
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard, ShoppingBag, UtensilsCrossed, Users, Settings, ShieldCheck, MessageSquare,
-  Menu, Sun, Moon, LogOut, ShieldAlert, Store,
+  Menu, Sun, Moon, LogOut, ShieldAlert, Store, History,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
@@ -87,6 +87,7 @@ function Shell({ me }: { me: Admin }) {
     { to: "/admin/products", label: "Products", icon: UtensilsCrossed, show: true },
     { to: "/admin/customers", label: "Customers", icon: Users, show: true },
     { to: "/admin/chats", label: "Live chat", icon: MessageSquare, show: true },
+    { to: "/admin/activity", label: "Activity log", icon: History, show: true },
     { to: "/admin/admins", label: "Admins", icon: ShieldCheck, show: isSuper },
     { to: "/admin/settings", label: "Settings", icon: Settings, show: isSuper },
   ] as const;
