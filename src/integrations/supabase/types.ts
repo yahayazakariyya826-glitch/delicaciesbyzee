@@ -14,6 +14,21 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          email: string
+          role: string
+        }
+        Insert: {
+          email: string
+          role?: string
+        }
+        Update: {
+          email?: string
+          role?: string
+        }
+        Relationships: []
+      }
       admins: {
         Row: {
           created_at: string
