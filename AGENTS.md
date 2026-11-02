@@ -12,3 +12,4 @@
 - Audit product mutations and order updates with database triggers, not browser inserts, so committed changes cannot bypass logging.
 - Audit sign-ins through an authenticated RPC deduplicated by verified session ID; never accept actor identity from client input.
 - Keep audit history append-only for app users and readable only through the existing database admin authorization.
+- Password recovery uses Cloud Auth email links and a public recovery page unlocked by PASSWORD_RECOVERY, never by an ordinary session alone.
