@@ -13,3 +13,6 @@
 - Audit sign-ins through an authenticated RPC deduplicated by verified session ID; never accept actor identity from client input.
 - Keep audit history append-only for app users and readable only through the existing database admin authorization.
 - Password recovery uses Cloud Auth email links and a public recovery page unlocked by PASSWORD_RECOVERY, never by an ordinary session alone.
+- Keep admin_users a read-only, trigger-synchronized projection of admins; the existing protected admins authority remains the single source of roles to prevent privilege escalation.
+- Verify admin routes before rendering using Cloud Auth getUser and protected membership reads; cancel and clear cached data before sign-out so protected state cannot survive logout.
+- Never provision accounts or embed credentials in app startup; account creation and password recovery use Cloud Auth's secure flows.

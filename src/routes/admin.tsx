@@ -1,58 +1,40 @@
-import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard, ShoppingBag, UtensilsCrossed, Users, Settings, ShieldCheck, MessageSquare,
-  Menu, Sun, Moon, LogOut, ShieldAlert, Store, History,
+  Menu, Sun, Moon, LogOut, Store, History,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { useUser } from "@/lib/auth";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminContext, adminHead, type Admin } from "@/components/admin/AdminContext";
+import { clearAdminSession, isSuperAdminMembership } from "@/lib/admin-access";
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
   head: () => adminHead("Dashboard"),
+  beforeLoad: async () => {
+    const { data: identity, error } = await supabase.auth.getUser();
+    if (error || !identity.user?.email) throw redirect({ to: "/admin/login", replace: true });
+    const email = identity.user.email.toLowerCase();
+    const { data: membership, error: membershipError } = await supabase.from("admin_users").select("role").eq("email", email).maybeSingle();
+    if (membershipError || !isSuperAdminMembership(membership)) throw redirect({ to: "/admin/login", replace: true });
+    const { data: me, error: adminError } = await supabase.from("admins").select("*").ilike("email", email).maybeSingle();
+    if (adminError || !me) throw redirect({ to: "/admin/login", replace: true });
+    return { me };
+  },
   component: AdminLayout,
 });
 
 function AdminLayout() {
-  const { user, loading } = useUser();
-  const navigate = useNavigate();
-  const [me, setMe] = useState<Admin | null | undefined>(undefined);
-
+  const { me } = Route.useRouteContext();
   useEffect(() => {
-    if (loading) return;
-    if (!user?.email) {
-      navigate({ to: "/admin/login", replace: true });
-      return;
-    }
-    supabase.from("admins").select("*").ilike("email", user.email).maybeSingle().then(({ data }) => setMe(data ?? null));
-  }, [user, loading, navigate]);
-
-  useEffect(() => {
-    if (me === null) {
-      const t = setTimeout(() => navigate({ to: "/", replace: true }), 2500);
-      return () => clearTimeout(t);
-    }
-    if (me) {
-      supabase.rpc("admin_heartbeat");
-      const t = setInterval(() => supabase.rpc("admin_heartbeat"), 60_000);
-      return () => clearInterval(t);
-    }
-    return undefined;
-  }, [me, navigate]);
-
-  if (me === undefined) return <div className="min-h-screen" />;
-  if (me === null)
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-3 px-4 text-center">
-        <ShieldAlert className="h-12 w-12 text-destructive" />
-        <h1 className="text-3xl font-bold">Access Denied</h1>
-        <p className="text-muted-foreground">This account is not an admin. Taking you home…</p>
-      </div>
-    );
+    void supabase.rpc("admin_heartbeat");
+    const t = setInterval(() => { void supabase.rpc("admin_heartbeat"); }, 60_000);
+    return () => clearInterval(t);
+  }, [me]);
 
   return (
     <AdminContext.Provider value={me}>
@@ -76,9 +58,16 @@ function Shell({ me }: { me: Admin }) {
   const [open, setOpen] = useState(false);
   const { light, toggle } = useTheme();
   const navigate = useNavigate();
+  const { queryClient } = Route.useRouteContext();
+  const [signingOut, setSigningOut] = useState(false);
   const signOut = async () => {
-    await supabase.auth.signOut();
-    navigate({ to: "/admin/login", replace: true });
+    setSigningOut(true);
+    try {
+      await clearAdminSession(queryClient, () => supabase.auth.signOut());
+      await navigate({ to: "/admin/login", replace: true });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to sign out.");
+    } finally { setSigningOut(false); }
   };
 
   const links = [
@@ -111,7 +100,7 @@ function Shell({ me }: { me: Admin }) {
       ))}
       <div className="mt-auto space-y-1 border-t border-border pt-3">
         <Link to="/" className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm hover:bg-accent"><Store className="h-4 w-4" /> View store</Link>
-        <button onClick={signOut} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm hover:bg-accent"><LogOut className="h-4 w-4" /> Sign out</button>
+        <Button variant="ghost" disabled={signingOut} onClick={signOut} className="w-full justify-start gap-3 px-3"><LogOut className="h-4 w-4" /> {signingOut ? "Signing out…" : "Sign out"}</Button>
       </div>
     </nav>
   );

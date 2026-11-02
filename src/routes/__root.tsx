@@ -132,9 +132,16 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
   useEffect(() => {
     registerPWA();
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+        setTimeout(() => {
+          void router.invalidate();
+          if (event !== "SIGNED_OUT") void queryClient.invalidateQueries();
+        }, 0);
+      }
       if (!shouldRecordSignIn(event, Boolean(session))) return;
       // Run outside the auth callback lock; the database validates and deduplicates sessions.
       setTimeout(() => {
@@ -144,7 +151,7 @@ function RootComponent() {
       }, 0);
     });
     return () => data.subscription.unsubscribe();
-  }, []);
+  }, [router, queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>
