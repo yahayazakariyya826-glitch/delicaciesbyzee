@@ -5,7 +5,7 @@
 - [x] Verify authenticated activity, permissions, and tests.
 
 # Admin password recovery
-- [ ] Add password sign-in and recovery form at /login.
-- [ ] Add secure reset-link destination and validation.
-- [ ] Request reset emails for the three named accounts and report unavailable accounts.
-- [ ] Verify the sign-in page and password validation.
+- [x] Add password sign-in and recovery form at /login.
+- [x] Add secure reset-link destination and validation.
+- [x] Request reset emails for the three named accounts and report unavailable accounts (828 has no auth account).
+- [x] Verify the sign-in page and password validation; actual emailed-link completion requires the recipient's inbox.
