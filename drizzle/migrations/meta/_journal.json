@@ -29,6 +29,13 @@
       "when": 1793623732365,
       "tag": "0003_secure_admin_users_compatibility",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793690092154,
+      "tag": "0004_restrict_admin_membership_grants",
+      "breakpoints": true
     }
   ]
 }
