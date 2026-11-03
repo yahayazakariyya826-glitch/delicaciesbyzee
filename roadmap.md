@@ -15,3 +15,8 @@
 - [x] Replace admin OTP with password login, visibility toggle, and verified super-admin access.
 - [x] Clear protected state on logout and verify product save and sign-out with the requesting user's verified session.
 - [x] Report limitations: supplied password rejected; no automatic credential provisioning; 828 still needs a sign-in account. No otp_codes table exists to remove.
+
+# Admin profile
+- [ ] Add protected profile page with current-password verification and confirmed email changes.
+- [ ] Preserve admin membership after confirmed email changes without client role writes.
+- [ ] Verify validation, authorized page access, and failure handling; real credential changes require the current password and email confirmation.
