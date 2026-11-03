@@ -1,9 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { naira } from "@/lib/brand";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
@@ -70,25 +68,8 @@ function Overview() {
           ))}
         </section>
       </div>
-      <PasswordCard />
+      <Button asChild variant="outline"><Link to="/admin/profile">My profile</Link></Button>
     </div>
   );
 }
 
-function PasswordCard() {
-  const [pw, setPw] = useState("");
-  const save = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pw.length < 8) { toast.error("Use at least 8 characters"); return; }
-    const { error } = await supabase.auth.updateUser({ password: pw });
-    if (error) toast.error(error.message);
-    else { toast.success("Password saved — you can now sign in with it."); setPw(""); }
-  };
-  return (
-    <form onSubmit={save} className="flex max-w-lg flex-col gap-2 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center">
-      <p className="text-sm font-medium sm:w-40">Set my password</p>
-      <Input type="password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder="New password" />
-      <Button type="submit">Save</Button>
-    </form>
-  );
-}

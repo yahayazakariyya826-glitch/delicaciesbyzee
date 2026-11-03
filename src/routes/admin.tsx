@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard, ShoppingBag, UtensilsCrossed, Users, Settings, ShieldCheck, MessageSquare,
-  Menu, Sun, Moon, LogOut, Store, History,
+  Menu, Sun, Moon, LogOut, Store, History, UserRound,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/admin")({
     const email = identity.user.email.toLowerCase();
     const { data: membership, error: membershipError } = await supabase.from("admin_users").select("role").eq("email", email).maybeSingle();
     if (membershipError || !isSuperAdminMembership(membership)) throw redirect({ to: "/admin/login", replace: true });
-    const { data: me, error: adminError } = await supabase.from("admins").select("*").ilike("email", email).maybeSingle();
+    const { data: me, error: adminError } = await supabase.from("admins").select("*").eq("auth_user_id", identity.user.id).maybeSingle();
     if (adminError || !me) throw redirect({ to: "/admin/login", replace: true });
     return { me };
   },
@@ -77,6 +77,7 @@ function Shell({ me }: { me: Admin }) {
     { to: "/admin/customers", label: "Customers", icon: Users, show: true },
     { to: "/admin/chats", label: "Live chat", icon: MessageSquare, show: true },
     { to: "/admin/activity", label: "Activity log", icon: History, show: true },
+    { to: "/admin/profile", label: "My profile", icon: UserRound, show: isSuper },
     { to: "/admin/admins", label: "Admins", icon: ShieldCheck, show: isSuper },
     { to: "/admin/settings", label: "Settings", icon: Settings, show: isSuper },
   ] as const;

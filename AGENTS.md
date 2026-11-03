@@ -16,3 +16,5 @@
 - Keep admin_users a read-only, trigger-synchronized projection of admins; the existing protected admins authority remains the single source of roles to prevent privilege escalation.
 - Verify admin routes before rendering using Cloud Auth getUser and protected membership reads; cancel and clear cached data before sign-out so protected state cannot survive logout.
 - Never provision accounts or embed credentials in app startup; account creation and password recovery use Cloud Auth's secure flows.
+- Bind the existing admins authority to verified Auth UUIDs; app-owned Auth lifecycle triggers synchronize confirmed email changes into admins and its read-only admin_users projection, never copy roles from browser input.
+- Signed-in profile changes require the current password; password updates send current_password to Cloud Auth, and email changes reauthenticate before requesting Auth-managed confirmation. Keep recovery separate.
