@@ -36,6 +36,13 @@
       "when": 1793690092154,
       "tag": "0004_restrict_admin_membership_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793690260141,
+      "tag": "0005_admin_profile_identity",
+      "breakpoints": true
     }
   ]
 }
