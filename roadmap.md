@@ -11,7 +11,7 @@
 - [x] Verify the sign-in page and password validation; actual emailed-link completion requires the recipient's inbox.
 
 # Password-only super-admin login
-- [ ] Provide a protected admin_users compatibility list and authorize the three requested emails.
-- [ ] Replace admin OTP with password login, visibility toggle, and verified super-admin access.
-- [ ] Clear protected state on logout and verify login, product access, and sign-out.
-- [ ] Report account/password provisioning limitations without embedding credentials.
+- [x] Provide a protected admin_users compatibility list and authorize the three requested emails.
+- [x] Replace admin OTP with password login, visibility toggle, and verified super-admin access.
+- [x] Clear protected state on logout and verify product save and sign-out with the requesting user's verified session.
+- [x] Report limitations: supplied password rejected; no automatic credential provisioning; 828 still needs a sign-in account. No otp_codes table exists to remove.
