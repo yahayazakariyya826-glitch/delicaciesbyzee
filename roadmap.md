@@ -17,6 +17,6 @@
 - [x] Report limitations: supplied password rejected; no automatic credential provisioning; 828 still needs a sign-in account. No otp_codes table exists to remove.
 
 # Admin profile
-- [ ] Add protected profile page with current-password verification and confirmed email changes.
-- [ ] Preserve admin membership after confirmed email changes without client role writes.
-- [ ] Verify validation, authorized page access, and failure handling; real credential changes require the current password and email confirmation.
+- [x] Add protected profile page with current-password verification and confirmed email changes.
+- [x] Preserve admin membership after confirmed email changes without client role writes.
+- [x] Verify validation, authorized page access, and failure handling; successful credential changes remain unverified without the current password and email confirmation.

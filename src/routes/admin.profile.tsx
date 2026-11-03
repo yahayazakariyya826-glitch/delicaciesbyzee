@@ -51,6 +51,9 @@ function AdminProfile() {
     if (validation) { setPasswordError(validation); return; }
     setBusy("password");
     try {
+      const user = await verifiedIdentity();
+      const { error: verificationError } = await supabase.auth.signInWithPassword({ email: user.email ?? "", password: currentPassword });
+      if (verificationError) throw new Error("Current password could not be verified. Please try again.");
       await verifiedIdentity();
       const { error } = await supabase.auth.updateUser({ password, current_password: currentPassword });
       if (error) throw error;
