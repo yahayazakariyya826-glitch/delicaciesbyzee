@@ -20,6 +20,7 @@ import { Route as AdminAdminsRouteImport } from './routes/admin.admins'
 import { Route as AdminChatsRouteImport } from './routes/admin.chats'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminMyProfileRouteImport } from './routes/admin.my-profile'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminProfileRouteImport } from './routes/admin.profile'
@@ -81,6 +82,11 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMyProfileRoute = AdminMyProfileRouteImport.update({
+  id: '/my-profile',
+  path: '/my-profile',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminOrdersRoute = AdminOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/admin/chats': typeof AdminChatsRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/my-profile': typeof AdminMyProfileRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/profile': typeof AdminProfileRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/admin/chats': typeof AdminChatsRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/my-profile': typeof AdminMyProfileRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/profile': typeof AdminProfileRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/admin/chats': typeof AdminChatsRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/my-profile': typeof AdminMyProfileRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/profile': typeof AdminProfileRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/admin/chats'
     | '/admin/customers'
     | '/admin/dashboard'
+    | '/admin/my-profile'
     | '/admin/orders'
     | '/admin/products'
     | '/admin/profile'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/admin/chats'
     | '/admin/customers'
     | '/admin/dashboard'
+    | '/admin/my-profile'
     | '/admin/orders'
     | '/admin/products'
     | '/admin/profile'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/admin/chats'
     | '/admin/customers'
     | '/admin/dashboard'
+    | '/admin/my-profile'
     | '/admin/orders'
     | '/admin/products'
     | '/admin/profile'
@@ -305,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/my-profile': {
+      id: '/admin/my-profile'
+      path: '/my-profile'
+      fullPath: '/admin/my-profile'
+      preLoaderRoute: typeof AdminMyProfileRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/orders': {
       id: '/admin/orders'
       path: '/orders'
@@ -349,6 +368,7 @@ interface AdminRouteChildren {
   AdminChatsRoute: typeof AdminChatsRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminMyProfileRoute: typeof AdminMyProfileRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminProfileRoute: typeof AdminProfileRoute
@@ -362,6 +382,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminChatsRoute: AdminChatsRoute,
   AdminCustomersRoute: AdminCustomersRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminMyProfileRoute: AdminMyProfileRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminProfileRoute: AdminProfileRoute,
