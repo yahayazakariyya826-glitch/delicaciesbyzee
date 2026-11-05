@@ -17,14 +17,17 @@ export type Database = {
       admin_users: {
         Row: {
           email: string
+          id: string | null
           role: string
         }
         Insert: {
           email: string
+          id?: string | null
           role?: string
         }
         Update: {
           email?: string
+          id?: string | null
           role?: string
         }
         Relationships: []
@@ -291,6 +294,10 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_super_admin: { Args: never; Returns: boolean }
       record_admin_sign_in: { Args: never; Returns: undefined }
+      valid_plain_text: {
+        Args: { max_len: number; required?: boolean; v: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
