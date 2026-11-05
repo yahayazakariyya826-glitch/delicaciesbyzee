@@ -43,6 +43,13 @@
       "when": 1793690260141,
       "tag": "0005_admin_profile_identity",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793863692296,
+      "tag": "0006_security_validation_and_uuid_membership",
+      "breakpoints": true
     }
   ]
 }

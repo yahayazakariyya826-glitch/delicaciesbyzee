@@ -1,4 +1,12 @@
 # Admin audit log
+ 
+# App security hardening
+- [ ] Audit browser credential exposure and sensitive logging.
+- [ ] Validate forms and committed data; use UUID admin membership.
+- [ ] Add thirty-minute admin inactivity sign-out and security headers.
+- [ ] Verify protections and report hosted settings that cannot be changed automatically.
+
+# Admin audit log
 - [x] Record product changes and order updates securely in the database.
 - [x] Record successful admin sessions without duplicate refresh entries.
 - [x] Add searchable activity page with change details.
