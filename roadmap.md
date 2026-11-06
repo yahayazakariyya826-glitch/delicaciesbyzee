@@ -1,5 +1,11 @@
 # Admin audit log
  
+# Customer authentication and product uploads
+- [ ] Add private full-name and phone profiles, signup validation, and password-only login links.
+- [ ] Verify UUID-based admin access without granting roles from signup or credentials.
+- [ ] Add /admin/products/new and image preview, upload status, and save validation.
+- [ ] Verify signup safety, authenticated image save, and iPhone 7 layout; report hosted limitations.
+ 
 # App security hardening
 - [ ] Audit browser credential exposure and sensitive logging.
 - [ ] Validate forms and committed data; use UUID admin membership.
