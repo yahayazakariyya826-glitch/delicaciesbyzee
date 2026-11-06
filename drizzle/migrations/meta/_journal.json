@@ -50,6 +50,13 @@
       "when": 1793863692296,
       "tag": "0006_security_validation_and_uuid_membership",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793949151080,
+      "tag": "0007_customer_profiles",
+      "breakpoints": true
     }
   ]
 }
