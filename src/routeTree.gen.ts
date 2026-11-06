@@ -14,6 +14,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminActivityRouteImport } from './routes/admin.activity'
 import { Route as AdminAdminsRouteImport } from './routes/admin.admins'
@@ -50,6 +51,11 @@ const LoginRoute = LoginRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/signup': typeof SignupRoute
   '/admin/activity': typeof AdminActivityRoute
   '/admin/admins': typeof AdminAdminsRoute
   '/admin/chats': typeof AdminChatsRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/signup': typeof SignupRoute
   '/admin/activity': typeof AdminActivityRoute
   '/admin/admins': typeof AdminAdminsRoute
   '/admin/chats': typeof AdminChatsRoute
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/signup': typeof SignupRoute
   '/admin/activity': typeof AdminActivityRoute
   '/admin/admins': typeof AdminAdminsRoute
   '/admin/chats': typeof AdminChatsRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/login'
     | '/reset-password'
+    | '/signup'
     | '/admin/activity'
     | '/admin/admins'
     | '/admin/chats'
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/login'
     | '/reset-password'
+    | '/signup'
     | '/admin/activity'
     | '/admin/admins'
     | '/admin/chats'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/login'
     | '/reset-password'
+    | '/signup'
     | '/admin/activity'
     | '/admin/admins'
     | '/admin/chats'
@@ -235,6 +247,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SignupRoute: typeof SignupRoute
   AdminLoginRoute: typeof AdminLoginRoute
 }
 
@@ -273,6 +286,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -398,6 +418,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SignupRoute: SignupRoute,
   AdminLoginRoute: AdminLoginRoute,
 }
 export const routeTree = rootRouteImport
