@@ -36,7 +36,7 @@ function AdminLogin() {
         setError("Unable to verify your account. Please sign in again."); return;
       }
       const { data: admin, error: membershipError } = await supabase.from("admin_users")
-        .select("role").eq("email", identity.user.email.toLowerCase()).maybeSingle();
+        .select("role").eq("id", identity.user.id).maybeSingle();
       if (membershipError || !isSuperAdminMembership(admin)) {
         await clearAdminSession(queryClient, () => supabase.auth.signOut());
         setError(membershipError ? "Unable to verify admin access. Please try again." : "Access denied - not super admin"); return;

@@ -18,9 +18,9 @@ export const Route = createFileRoute("/admin")({
   beforeLoad: async () => {
     const { data: identity, error } = await supabase.auth.getUser();
     if (error || !identity.user?.email) throw redirect({ to: "/admin/login", replace: true });
-    const email = identity.user.email.toLowerCase();
-    const { data: membership, error: membershipError } = await supabase.from("admin_users").select("role").eq("email", email).maybeSingle();
-    if (membershipError || !isSuperAdminMembership(membership)) throw redirect({ to: "/admin/login", replace: true });
+    const { data: membership, error: membershipError } = await supabase.from("admin_users").select("role").eq("id", identity.user.id).maybeSingle();
+    if (membershipError) throw redirect({ to: "/admin/login", replace: true });
+    if (!isSuperAdminMembership(membership)) throw redirect({ to: "/", replace: true });
     const { data: me, error: adminError } = await supabase.from("admins").select("*").eq("auth_user_id", identity.user.id).maybeSingle();
     if (adminError || !me) throw redirect({ to: "/admin/login", replace: true });
     return { me };
