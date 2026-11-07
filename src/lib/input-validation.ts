@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isStrongPassword, STRONG_PASSWORD_MESSAGE } from "./password";
 
 // Reject markup rather than storing pre-escaped text. React escapes rendered text.
 export const plainText = (max: number) => z.string().trim().max(max).regex(/^[^<>]*$/, "HTML tags are not allowed.");

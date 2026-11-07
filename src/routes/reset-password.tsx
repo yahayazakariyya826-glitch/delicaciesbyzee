@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { validResetPassword } from "@/lib/password";
+import { isStrongPassword, STRONG_PASSWORD_MESSAGE, validResetPassword } from "@/lib/password";
+import { PasswordChecklist } from "@/components/PasswordChecklist";
 
 export const Route = createFileRoute("/reset-password")({
   ssr: false,

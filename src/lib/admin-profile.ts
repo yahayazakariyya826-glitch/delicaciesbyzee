@@ -1,8 +1,8 @@
-import { validResetPassword } from "./password";
+import { isStrongPassword, STRONG_PASSWORD_MESSAGE, validResetPassword } from "./password";
 
 export function passwordChangeError(current: string, password: string, confirmation: string) {
   if (!current) return "Enter your current password.";
-  if (password.length < 8) return "Use at least 8 characters for your new password.";
+  if (!isStrongPassword(password)) return STRONG_PASSWORD_MESSAGE;
   if (!validResetPassword(password, confirmation)) return "New passwords do not match.";
   if (current === password) return "Choose a password different from your current password.";
   return null;

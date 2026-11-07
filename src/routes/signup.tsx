@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { signupSchema } from "@/lib/signup";
 import { validationMessage } from "@/lib/input-validation";
+import { PasswordChecklist } from "@/components/PasswordChecklist";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({ meta: [
