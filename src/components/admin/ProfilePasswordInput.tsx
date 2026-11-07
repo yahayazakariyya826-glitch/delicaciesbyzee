@@ -12,7 +12,7 @@ export function ProfilePasswordInput({ id, label, value, onChange, disabled, aut
   return <div className="space-y-2">
     <Label htmlFor={id}>{label}</Label>
     <div className="relative">
-      <Input id={id} required disabled={disabled} type={visible ? "text" : "password"} autoComplete={autoComplete} value={value} onChange={(event) => onChange(event.target.value)} className="pr-12" />
+      <Input id={id} required disabled={disabled} type={visible ? "text" : "password"} autoComplete={autoComplete} maxLength={256} value={value} onChange={(event) => onChange(event.target.value)} className="pr-12" />
       <Button type="button" size="icon" variant="ghost" disabled={disabled} className="absolute right-0 top-0 h-10 w-10" onClick={() => setVisible((shown) => !shown)} aria-label={`${visible ? "Hide" : "Show"} ${label.toLowerCase()}`} title={`${visible ? "Hide" : "Show"} ${label.toLowerCase()}`} aria-pressed={visible}>
         {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
       </Button>

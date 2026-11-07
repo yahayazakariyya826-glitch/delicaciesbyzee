@@ -57,7 +57,7 @@ export function AdminsTab({ me }: { me: Admin }) {
     e.preventDefault();
     const { error } = await supabase.from("admins").insert({ email: email.trim().toLowerCase(), role, created_by: me.email });
     if (error) { toast.error(error.message); return; }
-    toast.success("Admin added — they can sign in with an email code.");
+    toast.success("Admin added — they can sign in with their email and password once registered.");
     setEmail("");
     load();
   };

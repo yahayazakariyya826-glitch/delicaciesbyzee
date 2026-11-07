@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { validResetPassword } from "@/lib/password";
+import { isStrongPassword, STRONG_PASSWORD_MESSAGE, validResetPassword } from "@/lib/password";
+import { PasswordChecklist } from "@/components/PasswordChecklist";
 
 export const Route = createFileRoute("/reset-password")({
   ssr: false,
@@ -37,7 +38,9 @@ function ResetPassword() {
   }, []);
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!ready || !validResetPassword(password, confirmation)) { setError("Use at least 8 characters and matching passwords."); return; }
+    if (!ready) { setError("Open the secure reset link in your email before choosing a password."); return; }
+    if (!isStrongPassword(password)) { setError(STRONG_PASSWORD_MESSAGE); return; }
+    if (!validResetPassword(password, confirmation)) { setError("Passwords must match."); return; }
     setBusy(true); setError("");
     const { error } = await supabase.auth.updateUser({ password });
     setBusy(false);
@@ -48,8 +51,8 @@ function ResetPassword() {
   return <main className="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center gap-4 px-4 py-12">
     <h1 className="text-3xl font-bold text-gold-gradient">Reset password</h1>
     {saved ? <p role="status">Password saved. You can now sign in.</p> : ready ? <form onSubmit={save} className="space-y-4">
-      <div className="space-y-2"><Label htmlFor="new-password">New password</Label><Input id="new-password" type="password" autoComplete="new-password" minLength={8} required value={password} onChange={(e) => setPassword(e.target.value)} /></div>
-      <div className="space-y-2"><Label htmlFor="confirm-password">Confirm password</Label><Input id="confirm-password" type="password" autoComplete="new-password" required value={confirmation} onChange={(e) => setConfirmation(e.target.value)} /></div>
+      <div className="space-y-2"><Label htmlFor="new-password">New password</Label><Input id="new-password" type="password" autoComplete="new-password" minLength={8} maxLength={256} required value={password} onChange={(e) => setPassword(e.target.value)} /><PasswordChecklist password={password} /></div>
+      <div className="space-y-2"><Label htmlFor="confirm-password">Confirm password</Label><Input id="confirm-password" type="password" autoComplete="new-password" maxLength={256} required value={confirmation} onChange={(e) => setConfirmation(e.target.value)} /></div>
       <Button type="submit" className="w-full" disabled={busy}>{busy ? "Saving…" : "Save password"}</Button>
     </form> : <p className="text-muted-foreground">Open the secure reset link in your email to choose a new password.</p>}
     {error && <p role="alert" className="text-destructive">{error}</p>}

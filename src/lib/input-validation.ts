@@ -1,11 +1,12 @@
 import { z } from "zod";
+import { isStrongPassword, STRONG_PASSWORD_MESSAGE } from "./password";
 
 // Reject markup rather than storing pre-escaped text. React escapes rendered text.
 export const plainText = (max: number) => z.string().trim().max(max).regex(/^[^<>]*$/, "HTML tags are not allowed.");
 export const nameSchema = plainText(100).min(1, "Enter a name.");
 export const emailSchema = z.string().trim().toLowerCase().max(255).email("Enter a valid email address.");
 export const phoneSchema = z.string().trim().transform((v) => v.replace(/[ ()-]/g, "")).pipe(z.string().regex(/^(0[789][01]\d{8}|\+?234[789][01]\d{8})$/, "Enter a valid Nigerian phone number."));
-export const newPasswordSchema = z.string().min(8, "Use at least 8 characters.").max(256);
+export const newPasswordSchema = z.string().max(256).refine(isStrongPassword, STRONG_PASSWORD_MESSAGE);
 export const loginSchema = z.object({ email: emailSchema, password: z.string().min(1).max(256) });
 export const checkoutSchema = z.object({
   name: nameSchema, phone: phoneSchema, email: z.union([emailSchema, z.literal("")]),
