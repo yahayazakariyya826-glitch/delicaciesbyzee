@@ -35,8 +35,11 @@ function Signup() {
       const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name, phone }, emailRedirectTo: window.location.origin } });
       if (error) throw error;
       setForm((value) => ({ ...value, password: "", confirmation: "" }));
-      if (data.session) await navigate({ to: "/", replace: true });
-      else setSent(true);
+      if (data.session) { await navigate({ to: "/", replace: true }); return; }
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (!signInError) { await navigate({ to: "/", replace: true }); return; }
+      if (signInError.message.toLowerCase().includes("email not confirmed")) setSent(true);
+      else throw signInError;
     } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to create your account."); }
     finally { setBusy(false); }
   };
@@ -51,7 +54,7 @@ function Signup() {
     <Link to="/" className="mx-auto"><img src={logo} alt="Delicacies by Zee" width={64} height={64} className="rounded-full" /></Link>
     <h1 className="mt-4 text-center text-3xl font-bold text-gold-gradient">Create account</h1>
     {sent ? <p role="status" className="mt-6 text-center">Check your email to confirm your account, then sign in. Check spam too.</p> : <form onSubmit={submit} className="mt-5 space-y-3">
-      {fields.map((field) => <div key={field.key} className="space-y-1"><Label htmlFor={field.key}>{field.label}</Label><Input id={field.key} type={field.type} autoComplete={field.autocomplete} maxLength={field.max} minLength={field.type === "password" ? 8 : undefined} required disabled={busy} value={form[field.key]} onChange={(event) => setForm({ ...form, [field.key]: event.target.value })} /></div>)}
+      {fields.map((field) => <div key={field.key} className="space-y-1"><Label htmlFor={field.key}>{field.label}</Label><Input id={field.key} type={field.type} autoComplete={field.autocomplete} maxLength={field.max} minLength={field.type === "password" ? 8 : undefined} required disabled={busy} value={form[field.key]} onChange={(event) => setForm({ ...form, [field.key]: event.target.value })} />{field.key === "password" && <PasswordChecklist password={form.password} />}</div>)}
       <Button className="w-full" disabled={busy}>{busy ? "Creating account…" : "Create account"}</Button>
     </form>}
     <p className="mt-4 text-center text-sm text-muted-foreground">Already have an account? <Link to="/login" className="text-primary underline">Login</Link></p>

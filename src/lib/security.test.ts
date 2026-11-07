@@ -22,9 +22,10 @@ describe("security requirements", () => {
     expect(productSchema.safeParse(product).success).toBe(true);
     for (const price of [0, -1, "10", NaN, Infinity]) expect(productSchema.safeParse({ ...product, price }).success).toBe(false);
   });
-  it("requires new passwords at least eight characters", () => {
+  it("requires strong new passwords", () => {
     expect(newPasswordSchema.safeParse("a".repeat(7)).success).toBe(false);
-    expect(newPasswordSchema.safeParse("a".repeat(8)).success).toBe(true);
+    expect(newPasswordSchema.safeParse("a".repeat(8)).success).toBe(false);
+    expect(newPasswordSchema.safeParse("StrongPass123@").success).toBe(true);
   });
   it("adds response protections without blocking editor framing", () => {
     const response = secureResponse(new Response("OK"), new Request("https://delicaciesbyzee.lovable.app/admin"));
