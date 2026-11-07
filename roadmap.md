@@ -1,6 +1,6 @@
 # Password-only customer login
-- [ ] Remove any remaining OTP login path and enforce strong passwords with a live signup checklist.
-- [ ] Verify new-account signup and password login, including hosted confirmation behavior.
+- [x] Remove any remaining OTP login path and enforce strong passwords with a live signup checklist.
+- [x] Verify new-account signup and password login, including hosted confirmation behavior.
 
 # Admin audit log
  
