@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Pencil, Star, Trash2 } from "lucide-react";
+import { ImagePlus, Pencil, Star, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +33,7 @@ export function ProductEditor({ createNew = false }: { createNew?: boolean }) {
   const [previews, setPreviews] = useState<string[]>([]);
   const [uploadStatus, setUploadStatus] = useState("");
   const [uploadError, setUploadError] = useState("");
+  const photoInput = useRef<HTMLInputElement>(null);
   useEffect(() => () => previews.forEach((url) => URL.revokeObjectURL(url)), [previews]);
 
   const save = async () => {
@@ -111,6 +112,24 @@ export function ProductEditor({ createNew = false }: { createNew?: boolean }) {
           <DialogHeader><DialogTitle>{edit?.id ? "Edit product" : "New product"}</DialogTitle></DialogHeader>
           {edit && (
             <div className="space-y-3">
+              <div className="space-y-2">
+                <Label>Product pictures</Label>
+                <input ref={photoInput} aria-label="Product photos" className="hidden" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple disabled={uploading || saving} onChange={(e) => { if (e.target.files?.length) void upload(e.target.files); e.target.value = ""; }} />
+                <Button type="button" variant="outline" className="w-full gap-2" disabled={uploading || saving} onClick={() => photoInput.current?.click()}>
+                  <ImagePlus className="h-5 w-5" />{uploading ? "Uploading pictures…" : "Add pictures"}
+                </Button>
+                {uploadStatus && <p role="status" className="text-xs text-muted-foreground">{uploadStatus}</p>}
+                {uploadError && <p role="alert" className="text-sm text-destructive">{uploadError}</p>}
+                <div className="grid grid-cols-3 gap-2">
+                  {edit.images.map((url, i) => (
+                    <div key={url} className="relative aspect-square overflow-hidden rounded-md border border-border">
+                      <img src={url} alt={`${edit.name || "Product"} picture ${i + 1}`} className="h-full w-full object-cover" />
+                      <Button type="button" variant="secondary" size="icon" className="absolute right-1 top-1 h-7 w-7" aria-label={`Remove picture ${i + 1}`} title="Remove picture" disabled={uploading || saving} onClick={() => setEdit({ ...edit, images: edit.images.filter((_, n) => n !== i) })}><X className="h-4 w-4" /></Button>
+                    </div>
+                  ))}
+                  {previews.map((url) => <img key={url} src={url} alt="Photo preview" className="aspect-square w-full rounded-md object-cover opacity-60" />)}
+                </div>
+              </div>
               <div><Label>Name</Label><Input aria-label="Name" maxLength={100} value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} /></div>
               <div><Label>Description</Label><Textarea aria-label="Description" maxLength={2000} value={edit.description} onChange={(e) => setEdit({ ...edit, description: e.target.value })} /></div>
               <div className="grid grid-cols-3 gap-2">
@@ -123,20 +142,6 @@ export function ProductEditor({ createNew = false }: { createNew?: boolean }) {
                 <select value={edit.category} onChange={(e) => setEdit({ ...edit, category: e.target.value })} className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                   {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
                 </select>
-              </div>
-              <div className="space-y-2">
-                <Label>Images</Label>
-                <Input aria-label="Product photos" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple disabled={uploading || saving} onChange={(e) => { if (e.target.files?.length) void upload(e.target.files); e.target.value = ""; }} />
-                {uploadStatus && <p role="status" className="text-xs text-muted-foreground">{uploadStatus}</p>}
-                {uploadError && <p role="alert" className="text-sm text-destructive">{uploadError}</p>}
-                <div className="flex flex-wrap gap-2">{previews.map((url) => <img key={url} src={url} alt="Photo preview" className="h-14 w-14 rounded-lg object-cover" />)}</div>
-                <div className="flex flex-wrap gap-2">
-                  {edit.images.map((u, i) => (
-                    <button key={u} type="button" title="Remove" onClick={() => setEdit({ ...edit, images: edit.images.filter((_, n) => n !== i) })}>
-                      <img src={u} alt="" className="h-14 w-14 rounded-lg object-cover" />
-                    </button>
-                  ))}
-                </div>
               </div>
               <div className="flex items-center justify-between"><Label>Available</Label><Switch checked={edit.available} onCheckedChange={(v) => setEdit({ ...edit, available: v })} /></div>
               <div className="flex items-center justify-between"><Label>Featured</Label><Switch checked={edit.featured} onCheckedChange={(v) => setEdit({ ...edit, featured: v })} /></div>

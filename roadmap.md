@@ -1,4 +1,5 @@
 # Password-only customer login
+- [ ] Make New product picture selection prominent and verify authenticated upload and save.
 - [x] Remove any remaining OTP login path and enforce strong passwords with a live signup checklist.
 - [x] Verify new-account signup and password login, including hosted confirmation behavior.
 
