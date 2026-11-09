@@ -1,4 +1,5 @@
 # Password-only customer login
+- [ ] Show phone visitors an install offer with Android and iPhone support; verify dismissal and installed-app suppression.
 - [x] Make New product picture selection prominent and verify authenticated upload and save.
 - [x] Remove any remaining OTP login path and enforce strong passwords with a live signup checklist.
 - [x] Verify new-account signup and password login, including hosted confirmation behavior.
