@@ -2,13 +2,13 @@
 
 Implement exactly the screenshot and nothing else
 
-This project was built with [Lovable](https://lovable.dev).
+
 
 **Live app**: https://delicaciesbyzee.lovable.app
 
 ## Build with Lovable
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/9d502e32-c179-45de-b3c9-7d13bef82bbf).
+
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
 - **Stay in sync**: every change made in Lovable is committed straight to this repository.
